@@ -20,9 +20,6 @@ from app.database.models import User, Group, Location, Game, GamePlayer
 # this is the Alembic Config object
 config = context.config
 
-# Override sqlalchemy.url with our database URL
-config.set_main_option("sqlalchemy.url", settings.database_url)
-
 # Interpret the config file for Python logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
@@ -32,9 +29,9 @@ target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    url = config.get_main_option("sqlalchemy.url")
+    # Use database URL directly from settings to avoid ConfigParser interpolation issues
     context.configure(
-        url=url,
+        url=settings.database_url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -53,9 +50,11 @@ def do_run_migrations(connection: Connection) -> None:
 
 async def run_async_migrations() -> None:
     """Run migrations in 'online' mode."""
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    # Create engine directly with our database URL to avoid ConfigParser issues
+    from sqlalchemy.ext.asyncio import create_async_engine
+    
+    connectable = create_async_engine(
+        settings.database_url,
         poolclass=pool.NullPool,
     )
 
