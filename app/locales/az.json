@@ -1,0 +1,58 @@
+{
+  "start": {
+    "welcome": "👋 <b>Casus</b> oyununa xoş gəlmisiniz!\n\n🎮 <b>Oyun qaydaları:</b>\n\n• Bütün oyunçular eyni yeri alır, casus istisna olmaqla\n• Casus yeri bilmir və onu təxmin etməlidir\n• Oyunçular növbə ilə yer ilə assosiasiyalar adlandırırlar\n• Adi oyunçuların məqsədi - casusu tapmaq\n• Casusun məqsədi - yeri təxmin etmək\n\n📝 Sistemdə qeydiyyatdan keçmək üçün aşağıdakı düyməni basın:",
+    "already_registered": "✅ Siz artıq qeydiyyatdan keçmisiniz!",
+    "registered": "✅ Qeydiyyat uğurlu! İndi oyunlarda iştirak edə bilərsiniz.",
+    "group_welcome": "👋 Qrupa xoş gəlmisiniz, {name}!\n\n🎮 Oyunlarda iştirak etmək üçün sistemdə qeydiyyatdan keçin:"
+  },
+  "help": {
+    "text": "🎮 <b>Casus oyunu üzrə kömək</b>\n\n<b>Hamı üçün əmrlər:</b>\n/start - Sistemdə qeydiyyat\n/help - Bu kömək\n\n<b>Qrup adminləri üçün əmrlər:</b>\n/settings - Oyun parametrləri\n/addlocation - Yer əlavə et\n/startgame - Oyunçu qeydiyyatını başlat\n/endregister - Oyunu başlat\n/next - Növbəti oyunçu\n/endgame - Oyunu bitir\n\n<b>Necə oynamaq:</b>\n1. Admin /startgame başladır\n2. Oyunçular \"İştirak edirəm\" basırlar\n3. Admin /endregister başladır\n4. Hamı öz rolunu alır\n5. Oyunçular növbə ilə assosiasiyalar adlandırırlar\n6. Oyunçunu ittiham edə və ya casus kimi etiraf edə bilərsiniz"
+  },
+  "settings": {
+    "current": "⚙️ <b>Cari qrup parametrləri:</b>\n\n🌍 Dil: {language}\n👥 Min. oyunçular: {min_players}\n👥 Maks. oyunçular: {max_players}\n🕵️ Casuslar: {spy_percentage}%\n\nDəyişdirmək üçün əmri formatda göndərin:\n<code>/settings dil min maks faiz</code>\n\nMisal: <code>/settings az 5 8 25</code>\nMövcud dillər: ru, en, az",
+    "updated": "✅ Parametrlər yeniləndi!\n\n🌍 Dil: {language}\n👥 Min. oyunçular: {min_players}\n👥 Maks. oyunçular: {max_players}\n🕵️ Casuslar: {spy_percentage}%",
+    "error": "❌ Əmr formatında səhv!\n\nİstifadə edin: <code>/settings dil min maks faiz</code>\nMisal: <code>/settings az 5 8 25</code>",
+    "not_admin": "❌ Bu əmr yalnız qrup administratorları üçün əlçatandır."
+  },
+  "location": {
+    "add_prompt": "📍 Yer adını formatda göndərin:\n<code>Русский | English | Azərbaycan</code>\n\nMisal:\n<code>Больница | Hospital | Xəstəxana</code>",
+    "added": "✅ Yer əlavə edildi:\n🇷🇺 {ru}\n🇬🇧 {en}\n🇦🇿 {az}",
+    "error": "❌ Yanlış format! İstifadə edin:\n<code>Русский | English | Azərbaycan</code>"
+  },
+  "game": {
+    "announcement": "🎮 <b>OYUNÇU QEYDIYYATI BAŞLADI!</b>\n\nİştirak etmək üçün aşağıdakı düyməni basın 👇",
+    "already_started": "❌ Oyun artıq gedir! Bitməsini gözləyin.",
+    "joined": "✅ Siz oyuna qoşuldunuz!",
+    "already_joined": "ℹ️ Siz artıq oyundasınız!",
+    "passed": "➖ Bu oyunu buraxırsınız.",
+    "players_list": "👥 <b>Qeydiyyatdan keçmiş oyunçular ({count}):</b>\n{players}",
+    "not_enough_players": "❌ Kifayət qədər oyunçu yoxdur! Minimum: {min_players}",
+    "too_many_players": "❌ Çox oyunçu! Maksimum: {max_players}",
+    "started": "🎮 <b>OYUN BAŞLADI!</b>\n\n📍 Rolunuzu öyrənmək üçün aşağıdakı düyməni basın 👇",
+    "location_normal": "📍 <b>Sizin yeriniz:</b>\n\n{location}\n\n✅ Siz adi oyunçusunuz. Casusu tapın!",
+    "location_spy": "🕵️ <b>SİZ CASUSSUNUZ!</b>\n\nDigər oyunçuları dinləyərək yeri təxmin edin!",
+    "your_turn": "⏰ İndi sizin növbənizdir!\n\nYerlə assosiasiya adlandırın.",
+    "next_player": "▶️ Növbəti oyunçu: {name}",
+    "no_active_game": "❌ Aktiv oyun yoxdur.",
+    "game_ended": "🏁 <b>Oyun bitdi!</b>\n\nİştirak etdiyiniz üçün təşəkkürlər!",
+    "spy_guess": "🕵️ Siz casussunuz! Yeri daxil edin:",
+    "spy_correct": "🎉 Düzdür! Casus qalib gəldi!\n\n📍 Yer idi: {location}",
+    "spy_wrong": "❌ Səhvdir! Casus məğlub oldu.\n\n📍 Yer idi: {location}\n🕵️ Casus: {spy}",
+    "player_eliminated": "🚫 Oyunçu {name} oyundan çıxarıldı!",
+    "not_registered": "❌ Siz qeydiyyatdan keçməmisiniz! Bota /start göndərin"
+  },
+  "buttons": {
+    "register": "📝 Qeydiyyat",
+    "join": "✅ İştirak edirəm",
+    "pass": "❌ Pas",
+    "reveal_role": "🎭 Rolu öyrən",
+    "im_spy": "🕵️ Mən casusam!",
+    "accuse": "🔍 Oyunçunu ittiham et"
+  },
+  "errors": {
+    "private_only": "❌ Bu əmr yalnız şəxsi mesajlarda işləyir.",
+    "group_only": "❌ Bu əmr yalnız qruplarda işləyir.",
+    "not_admin": "❌ Bu əmr yalnız administratorlar üçün əlçatandır.",
+    "unknown": "❌ Xəta baş verdi. Sonra yenidən cəhd edin."
+  }
+}

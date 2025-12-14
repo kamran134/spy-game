@@ -1,0 +1,58 @@
+{
+  "start": {
+    "welcome": "👋 Welcome to the <b>Spy</b> game!\n\n🎮 <b>Game Rules:</b>\n\n• All players receive the same location, except the spy\n• The spy doesn't know the location and must guess it\n• Players take turns naming associations with the location\n• Goal of regular players - identify the spy\n• Goal of spy - guess the location\n\n📝 To register in the system, click the button below:",
+    "already_registered": "✅ You are already registered!",
+    "registered": "✅ Registration successful! Now you can participate in games.",
+    "group_welcome": "👋 Welcome to the group, {name}!\n\n🎮 To participate in games, register in the system:"
+  },
+  "help": {
+    "text": "🎮 <b>Spy Game Help</b>\n\n<b>Commands for everyone:</b>\n/start - Register in the system\n/help - Show this help\n\n<b>Commands for group admins:</b>\n/settings - Game settings\n/addlocation - Add location\n/startgame - Start player registration\n/endregister - Start game\n/next - Next player\n/endgame - End game\n\n<b>How to play:</b>\n1. Admin starts /startgame\n2. Players click \"Join\"\n3. Admin starts /endregister\n4. Everyone receives their roles\n5. Players take turns naming associations\n6. Can accuse a player or confess as spy"
+  },
+  "settings": {
+    "current": "⚙️ <b>Current group settings:</b>\n\n🌍 Language: {language}\n👥 Min. players: {min_players}\n👥 Max. players: {max_players}\n🕵️ Spies: {spy_percentage}%\n\nTo change, send command in format:\n<code>/settings language min max percent</code>\n\nExample: <code>/settings en 5 8 25</code>\nAvailable languages: ru, en, az",
+    "updated": "✅ Settings updated!\n\n🌍 Language: {language}\n👥 Min. players: {min_players}\n👥 Max. players: {max_players}\n🕵️ Spies: {spy_percentage}%",
+    "error": "❌ Command format error!\n\nUse: <code>/settings language min max percent</code>\nExample: <code>/settings en 5 8 25</code>",
+    "not_admin": "❌ This command is only available to group administrators."
+  },
+  "location": {
+    "add_prompt": "📍 Send location name in format:\n<code>Русский | English | Azərbaycan</code>\n\nExample:\n<code>Больница | Hospital | Xəstəxana</code>",
+    "added": "✅ Location added:\n🇷🇺 {ru}\n🇬🇧 {en}\n🇦🇿 {az}",
+    "error": "❌ Invalid format! Use:\n<code>Русский | English | Azərbaycan</code>"
+  },
+  "game": {
+    "announcement": "🎮 <b>PLAYER REGISTRATION STARTED!</b>\n\nClick the button below to participate 👇",
+    "already_started": "❌ Game already in progress! Wait for it to finish.",
+    "joined": "✅ You joined the game!",
+    "already_joined": "ℹ️ You are already in the game!",
+    "passed": "➖ You are skipping this game.",
+    "players_list": "👥 <b>Registered players ({count}):</b>\n{players}",
+    "not_enough_players": "❌ Not enough players! Minimum: {min_players}",
+    "too_many_players": "❌ Too many players! Maximum: {max_players}",
+    "started": "🎮 <b>GAME STARTED!</b>\n\n📍 Click the button below to reveal your role 👇",
+    "location_normal": "📍 <b>Your location:</b>\n\n{location}\n\n✅ You are a regular player. Find the spy!",
+    "location_spy": "🕵️ <b>YOU ARE THE SPY!</b>\n\nGuess the location by listening to other players!",
+    "your_turn": "⏰ It's your turn!\n\nName an association with the location.",
+    "next_player": "▶️ Next player: {name}",
+    "no_active_game": "❌ No active game.",
+    "game_ended": "🏁 <b>Game ended!</b>\n\nThanks for playing!",
+    "spy_guess": "🕵️ You are the spy! Enter the location:",
+    "spy_correct": "🎉 Correct! Spy wins!\n\n📍 Location was: {location}",
+    "spy_wrong": "❌ Wrong! Spy loses.\n\n📍 Location was: {location}\n🕵️ Spy: {spy}",
+    "player_eliminated": "🚫 Player {name} eliminated from the game!",
+    "not_registered": "❌ You are not registered! Send /start to the bot"
+  },
+  "buttons": {
+    "register": "📝 Register",
+    "join": "✅ Join",
+    "pass": "❌ Pass",
+    "reveal_role": "🎭 Reveal Role",
+    "im_spy": "🕵️ I'm the spy!",
+    "accuse": "🔍 Accuse player"
+  },
+  "errors": {
+    "private_only": "❌ This command only works in private messages.",
+    "group_only": "❌ This command only works in groups.",
+    "not_admin": "❌ This command is only available to administrators.",
+    "unknown": "❌ An error occurred. Please try again later."
+  }
+}
