@@ -50,6 +50,7 @@ docker compose up -d
 ### 📚 Документация:
 - [QUICKSTART.md](QUICKSTART.md) - За 5 минут к игре!
 - [SETUP.md](SETUP.md) - Полная инструкция
+- [GHCR_SETUP.md](GHCR_SETUP.md) - Настройка GitHub Container Registry
 - [COMMANDS.md](COMMANDS.md) - Все команды Docker/БД
 - [CHECKLIST.md](CHECKLIST.md) - Чеклист деплоя
 
@@ -61,7 +62,8 @@ docker compose up -d
 - **SQLAlchemy 2.0** - ORM
 - **Alembic** - миграции БД
 - **Docker & Docker Compose** - контейнеризация
-- **GitHub Actions** - CI/CD
+- **GitHub Container Registry (GHCR)** - хранение образов
+- **GitHub Actions** - CI/CD с автоматической сборкой и деплоем
 
 ## 🎯 Архитектура
 

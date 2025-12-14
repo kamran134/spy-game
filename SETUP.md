@@ -75,14 +75,18 @@ git clone <your-repo-url> .
 - `SSH_PRIVATE_KEY` - приватный SSH ключ для подключения
 - `BOT_TOKEN` - токен вашего бота
 - `DB_PASSWORD` - пароль для PostgreSQL
+- `GHCR_PAT` - GitHub Personal Access Token для Container Registry
+  - Создайте на GitHub: Settings → Developer settings → Personal access tokens → Tokens (classic)
+  - Выберите: `write:packages`, `read:packages`, `delete:packages`
 
 ### 3. Деплой
 
 После пуша в `main` ветку, GitHub Actions автоматически:
-1. Подключится к серверу
-2. Обновит код
-3. Создаст `.env` и `docker-compose.yml`
-4. Перезапустит контейнеры
+1. Соберёт Docker образ и запушит в GitHub Container Registry (GHCR)
+2. Подключится к серверу через SSH
+3. Обновит код
+4. Создаст `.env` и `docker-compose.yml`
+5. Скачает образ из GHCR и перезапустит контейнеры
 5. Заполнит базу локациями
 
 ---

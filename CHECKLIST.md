@@ -17,6 +17,7 @@
 
 ### GitHub подготовка
 - [ ] Создан репозиторий на GitHub
+- [ ] Репозиторий сделан публичным (или GHCR_PAT имеет доступ к приватному)
 - [ ] Запушен код: `git push origin main`
 - [ ] Настроены GitHub Secrets:
   - [ ] `SERVER_HOST` - IP сервера
@@ -24,6 +25,7 @@
   - [ ] `SSH_PRIVATE_KEY` - приватный SSH ключ
   - [ ] `BOT_TOKEN` - токен бота
   - [ ] `DB_PASSWORD` - пароль для PostgreSQL
+  - [ ] `GHCR_PAT` - GitHub Personal Access Token с правами `write:packages`
 
 ### Сервер подготовка
 - [ ] Ubuntu/Debian сервер настроен
