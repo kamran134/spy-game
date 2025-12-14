@@ -1,3 +1,4 @@
+from urllib.parse import quote_plus
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,8 +26,10 @@ class Settings(BaseSettings):
     
     @property
     def database_url(self) -> str:
-        """Construct database URL"""
-        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        """Construct database URL with properly encoded password"""
+        # URL-encode password to handle special characters like %, @, :, etc.
+        encoded_password = quote_plus(self.DB_PASSWORD)
+        return f"postgresql+asyncpg://{self.DB_USER}:{encoded_password}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 
 settings = Settings()
