@@ -138,3 +138,40 @@ class GameRepository:
         await self.session.commit()
         await self.session.refresh(game)
         return game
+    
+    async def resume_game(self, game_id: int) -> Optional[Game]:
+        """Resume finished game (undo endgame)"""
+        game = await self.get_by_id(game_id)
+        if not game or game.status != GameStatus.FINISHED:
+            return None
+        
+        game.status = GameStatus.IN_PROGRESS
+        game.finished_at = None
+        await self.session.commit()
+        await self.session.refresh(game)
+        return game
+    
+    async def add_vote(self, game_id: int, voter_id: int, voted_for_id: int) -> Optional[Game]:
+        """Add vote for player"""
+        game = await self.get_by_id(game_id, load_players=True)
+        if not game or game.status != GameStatus.IN_PROGRESS:
+            return None
+        
+        if game.votes is None:
+            game.votes = {}
+        
+        game.votes[str(voter_id)] = voted_for_id
+        await self.session.commit()
+        await self.session.refresh(game)
+        return game
+    
+    async def clear_votes(self, game_id: int) -> Optional[Game]:
+        """Clear all votes"""
+        game = await self.get_by_id(game_id)
+        if not game:
+            return None
+        
+        game.votes = {}
+        await self.session.commit()
+        await self.session.refresh(game)
+        return game

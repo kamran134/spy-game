@@ -83,6 +83,7 @@ class Game(Base):
     # Game state
     current_player_index: Mapped[int] = mapped_column(Integer, default=0)
     player_order: Mapped[list] = mapped_column(JSON, default=list)  # List of user IDs in turn order
+    votes: Mapped[dict] = mapped_column(JSON, default=dict)  # Dict of {voter_id: voted_for_id}
     
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     started_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

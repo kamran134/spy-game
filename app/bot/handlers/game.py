@@ -2,12 +2,13 @@ from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.exceptions import TelegramBadRequest
+from sqlalchemy import select
 
 from app.database.repositories.user import UserRepository
 from app.database.repositories.group import GroupRepository
 from app.database.repositories.location import LocationRepository
 from app.database.repositories.game import GameRepository
-from app.database.models import GameStatus
+from app.database.models import GameStatus, Game
 from app.bot.middlewares.i18n import I18nMiddleware
 from app.bot.filters.admin import IsAdminFilter
 from app.bot.keyboards.inline import (
@@ -306,11 +307,273 @@ async def cmd_endgame(
     await message.answer(text)
 
 
+@router.message(Command("resumegame"), F.chat.type.in_(["group", "supergroup"]), IsAdminFilter())
+async def cmd_resumegame(
+    message: Message,
+    group_repo: GroupRepository,
+    game_repo: GameRepository,
+    i18n: I18nMiddleware
+):
+    """Resume finished game (undo endgame)"""
+    group = await group_repo.get_by_id(message.chat.id)
+    
+    # Get the last game (even if finished)
+    result = await game_repo.session.execute(
+        select(Game).where(Game.group_id == message.chat.id).order_by(Game.id.desc()).limit(1)
+    )
+    game = result.scalar_one_or_none()
+    
+    if not game or game.status != GameStatus.FINISHED:
+        text = i18n.get_text(group.language, "game.game_not_finished")
+        await message.answer(text)
+        return
+    
+    await game_repo.resume_game(game.id)
+    
+    text = i18n.get_text(group.language, "game.game_resumed")
+    await message.answer(text)
+
+
+@router.message(Command("vote"), F.chat.type.in_(["group", "supergroup"]))
+async def cmd_vote(
+    message: Message,
+    group_repo: GroupRepository,
+    game_repo: GameRepository,
+    location_repo: LocationRepository,
+    i18n: I18nMiddleware
+):
+    """Vote for a player as spy"""
+    group = await group_repo.get_by_id(message.chat.id)
+    game = await game_repo.get_active_game_for_group(message.chat.id, load_players=True)
+    
+    if not game or game.status != GameStatus.IN_PROGRESS:
+        text = i18n.get_text(group.language, "game.no_active_game")
+        await message.answer(text)
+        return
+    
+    # Check if voter is in game
+    voter = next((p for p in game.players if p.user_id == message.from_user.id), None)
+    if not voter:
+        text = i18n.get_text(group.language, "game.not_in_game")
+        await message.answer(text)
+        return
+    
+    # Get voted user
+    voted_for_id = None
+    voted_name = None
+    
+    # Check if reply to message
+    if message.reply_to_message and message.reply_to_message.from_user:
+        voted_for_id = message.reply_to_message.from_user.id
+        voted_name = message.reply_to_message.from_user.first_name or message.reply_to_message.from_user.username
+    # Check for username in message
+    elif message.text and len(message.text.split()) > 1:
+        username = message.text.split()[1].lstrip('@')
+        # Find player by username
+        for p in game.players:
+            if p.user.username and p.user.username.lower() == username.lower():
+                voted_for_id = p.user_id
+                voted_name = p.user.first_name or p.user.username
+                break
+    
+    if not voted_for_id:
+        text = i18n.get_text(group.language, "game.vote_usage")
+        await message.answer(text)
+        return
+    
+    # Check if voted user is in game
+    voted_player = next((p for p in game.players if p.user_id == voted_for_id), None)
+    if not voted_player:
+        text = i18n.get_text(group.language, "game.vote_not_player")
+        await message.answer(text)
+        return
+    
+    # Check if voting for self
+    if voted_for_id == message.from_user.id:
+        text = i18n.get_text(group.language, "game.vote_self")
+        await message.answer(text)
+        return
+    
+    # Register vote
+    await game_repo.add_vote(game.id, message.from_user.id, voted_for_id)
+    
+    text = i18n.get_text(group.language, "game.vote_registered", name=voted_name)
+    await message.reply(text)
+    
+    # Check if all voted
+    game = await game_repo.get_by_id(game.id, load_players=True)
+    if len(game.votes) >= len(game.players):
+        # Count votes
+        from collections import Counter
+        vote_counts = Counter(game.votes.values())
+        most_voted_id, vote_count = vote_counts.most_common(1)[0]
+        
+        # Get names
+        accused_player = next(p for p in game.players if p.user_id == most_voted_id)
+        accused_name = accused_player.user.first_name or accused_player.user.username or f"User {most_voted_id}"
+        
+        # Show results
+        results_text = "\n".join([
+            f"• {next((p.user.first_name or p.user.username for p in game.players if p.user_id == uid), f'User {uid}')}: {count} голосов"
+            for uid, count in vote_counts.most_common()
+        ])
+        
+        text = i18n.get_text(group.language, "game.vote_results", 
+                            results=results_text, 
+                            accused=accused_name, 
+                            votes=vote_count)
+        await message.answer(text)
+        
+        # Check if spy
+        location = await location_repo.get_by_id(game.location_id)
+        location_name = get_location_name(location, group.language)
+        
+        if accused_player.is_spy:
+            spy_name = accused_player.user.first_name or accused_player.user.username
+            text = i18n.get_text(group.language, "game.spy_found", 
+                                spy=spy_name, 
+                                location=location_name)
+        else:
+            spy_player = next(p for p in game.players if p.is_spy)
+            spy_name = spy_player.user.first_name or spy_player.user.username
+            text = i18n.get_text(group.language, "game.spy_escaped", 
+                                accused=accused_name,
+                                spy=spy_name, 
+                                location=location_name)
+        
+        await message.answer(text)
+        await game_repo.end_game(game.id)
+
+
+@router.message(Command("guess"), F.chat.type.in_(["group", "supergroup"]))
+async def cmd_guess(
+    message: Message,
+    group_repo: GroupRepository,
+    game_repo: GameRepository,
+    location_repo: LocationRepository,
+    i18n: I18nMiddleware
+):
+    """Spy guesses the location with fuzzy matching"""
+    from rapidfuzz import fuzz
+    
+    group = await group_repo.get_by_id(message.chat.id)
+    game = await game_repo.get_active_game_for_group(message.chat.id, load_players=True)
+    
+    if not game or game.status != GameStatus.IN_PROGRESS:
+        text = i18n.get_text(group.language, "game.no_active_game")
+        await message.answer(text)
+        return
+    
+    # Check if player is spy
+    player = next((p for p in game.players if p.user_id == message.from_user.id), None)
+    if not player:
+        text = i18n.get_text(group.language, "game.not_in_game")
+        await message.answer(text)
+        return
+    
+    if not player.is_spy:
+        text = i18n.get_text(group.language, "game.guess_not_spy")
+        await message.answer(text)
+        return
+    
+    # Get guess
+    if not message.text or len(message.text.split()) < 2:
+        text = i18n.get_text(group.language, "game.guess_usage")
+        await message.answer(text)
+        return
+    
+    guess = " ".join(message.text.split()[1:])
+    
+    # Get location
+    location = await location_repo.get_by_id(game.location_id)
+    location_name = get_location_name(location, group.language)
+    spy_name = player.user.first_name or player.user.username
+    
+    # Fuzzy matching: calculate similarity
+    similarity = fuzz.ratio(guess.lower(), location_name.lower())
+    
+    # Check result based on similarity
+    if similarity >= 85:
+        # High similarity (≥85%) - accept as correct
+        text = i18n.get_text(group.language, "game.guess_correct", 
+                            location=location_name, 
+                            spy=spy_name)
+        await message.answer(text)
+        await game_repo.end_game(game.id)
+    elif similarity >= 70:
+        # Medium similarity (70-84%) - suggest correct name
+        text = i18n.get_text(group.language, "game.guess_close", 
+                            location=location_name)
+        await message.answer(text)
+    else:
+        # Low similarity (<70%) - wrong answer, game ends
+        text = i18n.get_text(group.language, "game.guess_wrong", 
+                            location=location_name, 
+                            guess=guess)
+        await message.answer(text)
+        await game_repo.end_game(game.id)
+
+
+# Auto-next handler for reply messages
+@router.message(F.chat.type.in_(["group", "supergroup"]), F.reply_to_message)
+async def handle_reply_to_turn(
+    message: Message,
+    bot: Bot,
+    group_repo: GroupRepository,
+    game_repo: GameRepository,
+    i18n: I18nMiddleware
+):
+    """Auto /next when player replies to their turn message"""
+    game = await game_repo.get_active_game_for_group(message.chat.id, load_players=True)
+    
+    if not game or game.status != GameStatus.IN_PROGRESS:
+        return
+    
+    # Check if replying to bot's message about their turn
+    if not message.reply_to_message.from_user.is_bot:
+        return
+    
+    # Check if this is the current player
+    current_user_id = game.player_order[game.current_player_index]
+    if message.from_user.id != current_user_id:
+        return
+    
+    # Check if bot's message mentions this user (your turn message)
+    if not message.reply_to_message.text or "⏰" not in message.reply_to_message.text:
+        return
+    
+    # Move to next player
+    await game_repo.next_player(game.id)
+    game = await game_repo.get_by_id(game.id, load_players=True)
+    
+    # Get next player
+    next_user_id = game.player_order[game.current_player_index]
+    next_player = next(p for p in game.players if p.user_id == next_user_id)
+    
+    # Mention player
+    name = next_player.user.first_name or next_player.user.username or f"User {next_user_id}"
+    text = i18n.get_text(group.language, "game.next_player", name=name)
+    
+    group = await group_repo.get_by_id(message.chat.id)
+    
+    try:
+        await message.answer(text)
+        await bot.send_message(
+            message.chat.id,
+            f"<a href='tg://user?id={next_user_id}'>{name}</a> " + 
+            i18n.get_text(group.language, "game.your_turn"),
+            parse_mode="HTML"
+        )
+    except TelegramBadRequest:
+        await message.answer(text)
+
+
 # Non-admin game commands handlers
 @router.message(Command("startgame"), F.chat.type.in_(["group", "supergroup"]), ~IsAdminFilter())
 @router.message(Command("endregister"), F.chat.type.in_(["group", "supergroup"]), ~IsAdminFilter())
 @router.message(Command("next"), F.chat.type.in_(["group", "supergroup"]), ~IsAdminFilter())
 @router.message(Command("endgame"), F.chat.type.in_(["group", "supergroup"]), ~IsAdminFilter())
+@router.message(Command("resumegame"), F.chat.type.in_(["group", "supergroup"]), ~IsAdminFilter())
 async def cmd_game_not_admin(
     message: Message,
     i18n: I18nMiddleware,
