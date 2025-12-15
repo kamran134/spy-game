@@ -227,6 +227,45 @@ docker ps
 docker compose exec bot python -c "import sys; print(sys.version)"
 ```
 
+## Bot Game Commands
+
+### Admin Commands (Group Only)
+```
+/startgame - Start player registration
+/endregister - Start the game (after registration)
+/next - Move to next player's turn
+/endgame - End current game
+/resumegame - Resume game (undo /endgame)
+/settings - View/change game settings
+/addlocation - Add new location
+```
+
+### Player Commands (Group)
+```
+/start - Register in the bot (in private chat first)
+/help - Show help message
+/vote @username - Vote for suspected spy (or reply to message)
+/guess location - Spy guesses the location (fuzzy matching enabled)
+```
+
+### Game Features
+- **Auto-next**: Reply to your turn message to automatically move to next player
+- **Voting system**: All players vote, most voted player is revealed
+- **Fuzzy guess**: Spy can make typos - 85%+ similarity accepted
+- **Resume game**: Admin can undo accidental /endgame
+
+### Example Game Flow
+```
+1. Admin: /startgame
+2. Players: Click "Join" button
+3. Admin: /endregister (when enough players)
+4. Players: Receive roles in private
+5. Players: Take turns naming associations (reply to auto-next)
+6. Players: /vote @username when ready
+7. Spy: /guess Hospital (can have typos like "Hosptal")
+8. Game ends automatically after voting or guess
+```
+
 ## Git Commands
 
 ### Common Workflow
